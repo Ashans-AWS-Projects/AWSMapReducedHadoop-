@@ -1,0 +1,2 @@
+bigram	total_count
+A .	689620

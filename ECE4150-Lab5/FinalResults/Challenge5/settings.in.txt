@@ -1,0 +1,9 @@
+{
+"current_password":"",
+"token":"",
+"wifi_ap":{
+"ssid":"MyGoPro",
+"password":"Ashan123#"
+},
+"wifi_networks":[]
+}

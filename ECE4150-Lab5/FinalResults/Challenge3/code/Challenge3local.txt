@@ -1,0 +1,36 @@
+--Loading data from local files
+--data = LOAD 'googlebooks-eng-us-all-2gram-20090715-50-subset.csv' USING PigStorage ('\t') AS (bigram:chararray, year:int, wordcount:int, pagecount:int, bookcount:int);
+
+--input file for HDFS on a hadoop instance:
+
+data = LOAD '/user/ashan/googlebooks-eng-us-all-2gram-20090715-50-subset.csv' AS (bigram:chararray, year:int, wordcount:int, pagecount:int, bookcount:int);
+
+-- Filter records to include bigrams in year 2003
+-- bigrams_2003 = FILTER data BY SIZE(bigram) > 1;
+bigrams_2003 = FILTER data BY year == 2003  ;
+
+-- Combine all records to make records with distinct bigram names
+bigrams_2003_groups = GROUP bigrams_2003 BY bigram;
+
+-- generate new record with bigram, total bigram count
+bigrams = FOREACH bigrams_2003_groups GENERATE group AS bigram, SUM(bigrams_2003.wordcount) AS total;
+
+-- find bigram with max total
+highest_total = FOREACH (GROUP bigrams ALL) GENERATE MAX(bigrams.total) AS max_total;
+
+-- match record of most common bigram with max total
+most_common_bigram = JOIN highest_total BY max_total, bigrams BY total;
+
+-- make new record in the form bigram, highest total count
+most_common_bigram_extracted = FOREACH most_common_bigram GENERATE bigram AS bigram:chararray, total AS total:int;
+
+--most_common_bigram = FILTER bigrams BY total == highest_total
+
+--locally store output
+--STORE most_common_bigram_extracted INTO 'local_challenge3_outputv4';
+
+--store output on hdfs
+STORE mostcommonBigram INTO '/user/ashan/aws_pig_challenge3';
+
+
+

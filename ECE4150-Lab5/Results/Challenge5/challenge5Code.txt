@@ -1,0 +1,6 @@
+SELECT bigram, SUM(wordcount) AS total_count
+FROM `default`.`hue__tmp_challenge5`
+WHERE size(split(bigram, ' ')) > 1  -- This ensures only bigrams are considered
+GROUP BY bigram
+ORDER BY total_count DESC
+LIMIT 1;

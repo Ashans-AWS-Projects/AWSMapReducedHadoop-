@@ -1,0 +1,10 @@
+-- Load the dataset and filter for records from the year 2003
+i = LOAD '/user/ashan/test_set_1.txt' using  as (lines,chararray);
+filtered = FILTER i BY year == 2003;
+
+b = FOREACH filtered GENERATE FLATTEN(TOKENIZE(word2)) as word;
+c = GROUP b by word;
+d = FOREACH c GENERATE group, COUNT(b);
+
+-- Output the result
+store d into '/user/ashan/pig_challenge3v2';

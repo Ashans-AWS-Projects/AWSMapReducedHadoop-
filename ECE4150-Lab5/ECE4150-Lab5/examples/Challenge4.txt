@@ -1,0 +1,26 @@
+--load data locally
+--data_input = LOAD 'googlebooks-eng-us-all-2gram-20090715-50-subset.csv' USING PigStorage('\t') AS (bigram:chararray, year:int, wordcount:int, pagecount:int, bookcount:int);
+
+
+-- load and extract data using hdfs
+data_input = LOAD '/user/ashan/googlebooks-eng-us-all-2gram-20090715-50-subset.csv' AS (bigram:chararray, year:int, wordcount:int, pagecount:int, bookcount:int);
+
+--
+
+-- group the records by the year
+year_grouped = GROUP data_input BY year;
+
+-- find the highest word count for each year
+highest_yearly_total = FOREACH year_grouped GENERATE group AS year, MAX(data_input.wordcount) AS max_total;
+
+-- extract the records in the data which match the year and word count
+most_bigram_yearly = JOIN highest_yearly_total BY (year, max_total), data_input BY (year, wordcount);
+
+-- generate the new record format in form year, bigram, wordcount
+most_common_per_year = FOREACH  most_bigram_yearly GENERATE data_input::year AS year, data_input::bigram AS bigram, data_input::wordcount AS wordcount;
+
+--output the most common bigrams per year
+--STORE most_common_per_year INTO 'challenge4_outputv14';
+
+--store output on hdfs
+STORE most_common_per_year INTO '/user/ashan/aws_pig_challenge4';

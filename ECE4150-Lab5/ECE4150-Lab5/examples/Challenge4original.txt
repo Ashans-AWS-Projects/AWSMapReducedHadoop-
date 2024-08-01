@@ -1,0 +1,25 @@
+-- Load the CSV file
+data = LOAD 'googlebooks-eng-us-all-2gram-20090715-50-subset.csv' USING PigStorage('\t') AS (bigram:chararray, year:int, count:int, page:chararray, books:chararray);
+
+--In MapReduce mode with input file on HDFS:
+
+--data = LOAD '/user/ashan/googlebooks-eng-us-all-2gram-20090715-50-subset.csv' AS (bigram:chararray, year:int, count:int, page:chararray, books:chararray);
+
+-- Group the data by year
+grouped_data = GROUP data BY year;
+
+-- Find the maximum count for each year
+max_counts = FOREACH grouped_data GENERATE group AS year, MAX(data.count) AS max_count;
+
+-- Join the original data with the maximum counts
+joined_data = JOIN data BY (year, count), max_counts BY (year, max_count);
+
+-- Filter out the rows where the count matches the maximum count
+filtered_data = FILTER joined_data BY data::count == max_counts::max_count;
+
+-- Extract bigram and count
+most_common_per_year = FOREACH filtered_data GENERATE data::year AS year, data::bigram AS bigram, data::count AS count;
+
+-- Write the results to a text file
+STORE most_common_per_year INTO 'output_directory_p4v6';
+--store most_common_per_year INTO '/user/ashan/pig_challenge4_aws';
