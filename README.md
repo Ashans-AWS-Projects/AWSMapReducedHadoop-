@@ -18,11 +18,6 @@ This project showcases various batch data processing techniques using Hadoop's e
 - [Introduction](#introduction)
 - [Technologies Used](#technologies-used)
 - [Setup and Installation](#setup-and-installation)
-- [Tasks Overview](#tasks-overview)
-- [Results](#results)
-- [Screenshots](#screenshots)
-- [Contributors](#contributors)
-- [License](#license)
 
 ## 🚀 Introduction
 
